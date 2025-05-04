@@ -1,22 +1,22 @@
 /** Specifies the bounds for the total of a value. */
-export type Constraint = {
+export interface Constraint {
   /**
    * The total should be equal to this number.
    * In the case that `min` or `max` are also defined, this is used instead.
    */
-  readonly equal?: number
+  readonly equal?: number;
 
   /**
    * The total should be greater than or equal to this number.
    * Can be specified alongside `max`.
    */
-  readonly min?: number
+  readonly min?: number;
 
   /**
    * The total should be less than or equal to this number.
    * Can be specified alongside `min`.
    */
-  readonly max?: number
+  readonly max?: number;
 }
 
 /**
@@ -26,12 +26,14 @@ export type Constraint = {
  */
 export type Coefficients<ConstraintKey = string> =
   | Iterable<readonly [ConstraintKey, number]>
-  | ([ConstraintKey] extends [string] ? { readonly [key in ConstraintKey]?: number } : never)
+  | ([ConstraintKey] extends [string]
+      ? Readonly<Partial<Record<ConstraintKey, number>>>
+      : never);
 
 /**
  * Indicates whether to maximize or minimize the objective.
  */
-export type OptimizationDirection = "maximize" | "minimize"
+export type OptimizationDirection = "maximize" | "minimize";
 
 /**
  * The model representing a LP problem.
@@ -45,12 +47,12 @@ export type OptimizationDirection = "maximize" | "minimize"
  * the objective, and the coefficients on each variable.
  * It should extend `string` if `constraints` or any variable's `Coefficients` is an object.
  */
-export type Model<VariableKey = string, ConstraintKey = string> = {
+export interface Model<VariableKey = string, ConstraintKey = string> {
   /**
    * Indicates whether to `"maximize"` or `"minimize"` the objective.
    * Defaults to `"maximize"` if left blank.
    */
-  readonly direction?: OptimizationDirection
+  readonly direction?: OptimizationDirection;
 
   /**
    * The key of the value to optimize. Can be omitted,
@@ -67,7 +69,7 @@ export type Model<VariableKey = string, ConstraintKey = string> = {
    * }
    * ```
    */
-  readonly objective?: ConstraintKey
+  readonly objective?: ConstraintKey;
 
   /**
    * An object or `Iterable` representing the constraints of the problem.
@@ -95,7 +97,9 @@ export type Model<VariableKey = string, ConstraintKey = string> = {
    */
   readonly constraints:
     | Iterable<readonly [ConstraintKey, Constraint]>
-    | ([ConstraintKey] extends [string] ? { readonly [key in ConstraintKey]?: Constraint } : never)
+    | ([ConstraintKey] extends [string]
+        ? Readonly<Partial<Record<ConstraintKey, Constraint>>>
+        : never);
 
   /**
    * An object or `Iterable` representing the variables of the problem.
@@ -129,14 +133,16 @@ export type Model<VariableKey = string, ConstraintKey = string> = {
    */
   readonly variables:
     | Iterable<readonly [VariableKey, Coefficients<ConstraintKey>]>
-    | ([VariableKey] extends [string] ? { readonly [key in VariableKey]?: Coefficients<ConstraintKey> } : never)
+    | ([VariableKey] extends [string]
+        ? Readonly<Partial<Record<VariableKey, Coefficients<ConstraintKey>>>>
+        : never);
 
   /**
    * An `Iterable` of variable keys that indicate the corresponding variables are integer.
    * It can also be a `boolean`, indicating whether all variables are integer or not.
    * If this is left blank, then all variables are treated as not integer.
    */
-  readonly integers?: boolean | Iterable<VariableKey>
+  readonly integers?: boolean | Iterable<VariableKey>;
 
   /**
    * An `Iterable` of variable keys that indicate the corresponding variables are binary
@@ -144,19 +150,24 @@ export type Model<VariableKey = string, ConstraintKey = string> = {
    * It can also be a `boolean`, indicating whether all variables are binary or not.
    * If this is left blank, then all variables are treated as not binary.
    */
-  readonly binaries?: boolean | Iterable<VariableKey>
+  readonly binaries?: boolean | Iterable<VariableKey>;
 }
 
 /**
  * This indicates what type of solution, if any, the solver was able to find.
  * @see `status` on `Solution` for detailed information.
  */
-export type SolutionStatus = "optimal" | "infeasible" | "unbounded" | "timedout" | "cycled"
+export type SolutionStatus =
+  | "optimal"
+  | "infeasible"
+  | "unbounded"
+  | "timedout"
+  | "cycled";
 
 /**
  * The solution object returned by the solver.
  */
-export type Solution<VariableKey = string> = {
+export interface Solution<VariableKey = string> {
   /**
    * `status` indicates what type of solution, if any, the solver was able to find.
    *
@@ -182,31 +193,31 @@ export type Solution<VariableKey = string> = {
    * then it is assumed that a cycle was encountered.
    * `result` will be `NaN` in this case.
    */
-  status: SolutionStatus
+  status: SolutionStatus;
 
   /**
    * The final, maximized or minimized value of the objective.
    * It may be `NaN` in the case that `status` is `"infeasible"`, `"cycled"`, or `"timedout"`.
    * It may also be +-`Infinity` in the case that `status` is `"unbounded"`.
    */
-  result: number
+  result: number;
 
   /**
    * An array of variables and their coefficients that add up to `result` while satisfying the constraints of the problem.
    * Variables with a coefficient of `0` are not included in this by default.
    * In the case that `status` is `"unbounded"`, `variables` may consist of one variable which is (one of) the unbounded variable(s).
    */
-  variables: [VariableKey, number][]
+  variables: [VariableKey, number][];
 }
 
 /** An object specifying the options for the solver. */
-export type Options = {
+export interface Options {
   /**
    * Numbers with magnitude equal to or less than the provided precision are treated as zero.
    * Similarly, the precision determines whether a number is sufficiently integer.
    * The default value is `1e-8`.
    */
-  readonly precision?: number
+  readonly precision?: number;
 
   /**
    * In rare cases, the solver can cycle.
@@ -215,7 +226,7 @@ export type Options = {
    * Note that checking for cycles may incur a small performance overhead.
    * The default value is `false`.
    */
-  readonly checkCycles?: boolean
+  readonly checkCycles?: boolean;
 
   /**
    * This determines the maximum number of pivots allowed within the simplex method.
@@ -224,7 +235,7 @@ export type Options = {
    * If your problem is very large, you may have to set this option higher.
    * The default value is `8192`.
    */
-  readonly maxPivots?: number
+  readonly maxPivots?: number;
 
   /**
    * This option applies to integer problems only.
@@ -236,7 +247,7 @@ export type Options = {
    * but approximate or near-optimal solutions may be much easier to find.
    * The default value is `0` (only find the most optimal solution).
    */
-  readonly tolerance?: number
+  readonly tolerance?: number;
 
   /**
    * This option applies to integer problems only.
@@ -246,7 +257,7 @@ export type Options = {
    * Also, if any sub-optimal solution was found before the time out, then it is returned as well.
    * The default value is `Infinity` (no timeout).
    */
-  readonly timeout?: number
+  readonly timeout?: number;
 
   /**
    * This option applies to integer problems only.
@@ -254,12 +265,12 @@ export type Options = {
    * It can be used alongside or instead of `timeout` to prevent the solver from taking too long.
    * The default value is `32768`.
    */
-  readonly maxIterations?: number
+  readonly maxIterations?: number;
 
   /**
    * Controls whether variables that end up having a value of `0`
    * should be included in `variables` in the resulting `Solution`.
    * The default value is `false`.
    */
-  readonly includeZeroVariables?: boolean
+  readonly includeZeroVariables?: boolean;
 }
