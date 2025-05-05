@@ -14,7 +14,7 @@ This example illustrates minimizing costs while ensuring a minimum length constr
 
 ```typescript
 const cuttingStockModel = {
-  direction: "minimize",  // Alternatively  direction: "maximize",
+  direction: "minimize" as const,  // Opposite: direction: "maximize",
   objective: "cost",
   variables: {
     "21": { length: 21, cost: 75 },
@@ -23,14 +23,21 @@ const cuttingStockModel = {
     "36": { length: 36, cost: 120 }
   },
   constraints: {
-    length: { min: 25 } // Alternatively `{ max: value }`, `{ equal: value }` or `{ min: lower, max: upper }`
+    length: { min: 25 } 
+    // Other : { max: value },
+    // Other2 : { equal: value },
+    // Other3 : { min: lower, max: upper }
   },
-  integers: ["21", "26", "31", "36"], // Integer variables. If all variables are integers, it can be written as `integers: true`.
-  binaries: [] // Binaries variables follow the very same rules as integers.
+  integers: ["21", "26", "31", "36"], // Or here `integers: true`.
+  binaries: [] // Same rules as integers.
 };
 
 const cuttingStockSolution = solve(cuttingStockModel);
-// Expected result: { status: "optimal", result: 90, variables: [ ["26", 1] ] }
+// Result: { 
+//   status: "optimal", 
+//   result: 90, 
+//   variables: [ ["26", 1] ]
+// }
 ```
 
 ### Berlin Air Lift Testcase with Iterable Format and Helper Functions
@@ -47,10 +54,10 @@ This example demonstrates maximizing capacity while adhering to constraints on p
 ```typescript
 // Define constraints using helper functions
 const constraints = new Map<string, Constraint>()
-  .set("plane", lessEq(44))    // Using lessEq for maximum plane constraint
-  .set("person", lessEq(512))   // Using lessEq for maximum person constraint
-  .set("cost", lessEq(300))     // Using lessEq for maximum cost constraint
-  .set("yankees", equalTo(0));  // Using helper function for equality
+  .set("plane", lessEq(44)) 
+  .set("person", lessEq(512))
+  .set("cost", lessEq(300))
+  .set("yankees", equalTo(0));
 
 // Define variables using object and iterable types
 const brit = new Map<string, number>()
@@ -68,7 +75,7 @@ const yank = new Map<string, number>()
   .set("yankees", 1);
 
 const berlinModel = {
-  direction: "maximize",
+  direction: "maximize" as const,
   objective: "capacity",
   constraints,
   variables: {
@@ -78,7 +85,11 @@ const berlinModel = {
 };
 
 const berlinSolution = solve(berlinModel);
-// Expected result: { status: "optimal", result: 1024000, variables: [ ["brit", 12.8], ["yank", 25.6] ] }
+// Result: { 
+//   status: "optimal", 
+//   result: 1024000, 
+//   variables: [ ["brit", 12.8], ["yank", 25.6] ] 
+// }
 ```
 
 ## Advanced Options
@@ -90,10 +101,10 @@ const options = {
   precision: 1E-8,     // Treat numbers <= this value as zero
   checkCycles: false,  // Enable explicit cycle checking if needed
   maxPivots: 8192,     // Maximum number of simplex pivots
-  tolerance: 0.05,     // Tolerance for returning near-optimal integer solutions
+  tolerance: 0.05,     // Tolerance for near-optimal integer solutions
   timeout: 1000,       // Maximum time in milliseconds for the solve
   maxIterations: 32768,// Maximum iterations for branch and cut
-  includeZeroVariables: false // Whether to list variables with 0 value in the solution
+  includeZeroVariables: false // Keep 0 value variables in the solution
 };
 
 const solutionWithOptions = solve(model, options);
