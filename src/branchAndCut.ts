@@ -2,7 +2,7 @@
 import { Options, SolutionStatus } from "./types.js";
 import { index, Tableau, TableauModel } from "./tableau.js";
 import { simplex } from "./simplex.js";
-import { MinHeap } from "@ickb/utils";
+import { MinHeap } from "./heap.js";
 
 interface Buffer {
   readonly matrix: Float64Array;

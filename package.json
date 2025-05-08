@@ -1,14 +1,14 @@
 {
-  "name": "@ickb/solver",
+  "name": "yalps",
   "version": "0.5.6",
   "description": "NervosDAO utilities built on top of CCC",
   "author": "ivordir",
   "license": "MIT",
   "private": false,
-  "homepage": "https://github.com/ickb/solver",
+  "homepage": "https://github.com/phroi/yalps",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ickb/solver.git"
+    "url": "git://github.com/phroi/yalps.git"
   },
   "sideEffects": false,
   "main": "dist/cjs/index.js",
@@ -34,9 +34,6 @@
     "eslint": "^9.26.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.1"
-  },
-  "dependencies": {
-    "@ickb/utils": "^1000.0.45"
+    "typescript-eslint": "^8.32.0"
   }
 }
